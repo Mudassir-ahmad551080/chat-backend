@@ -29,6 +29,8 @@ export const userInformation = async (req, res) => {
             - **Location:** Dalazak Road, Peshawar
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
+            - **linkdin-account:** https://www.linkedin.com/in/mudassir-developer123/
+            - **Github:** https://github.com/Mudassir-ahmad551080
 
             if the user can ask about the skill
             so provide the html,css,javascript,react.js,node.js,express,mongodb,
