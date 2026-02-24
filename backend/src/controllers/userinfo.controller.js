@@ -29,8 +29,10 @@ export const userInformation = async (req, res) => {
             - **Location:** Dalazak Road, Peshawar
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
-            - **linkdin-account:** https://www.linkedin.com/in/mudassir-developer123/
-            - **Github:** https://github.com/Mudassir-ahmad551080
+            Whenever you mention linkdin or gitub , you MUST use Markdown link syntax. 
+            Here are his projects:
+            // - **linkdin-account:** [click to view linkdin](https://www.linkedin.com/in/mudassir-developer123/)
+            // - **Github:**  [click to view linkdin](https://github.com/Mudassir-ahmad551080)
 
             if the user can ask about the skill
             so provide the html,css,javascript,react.js,node.js,express,mongodb,
