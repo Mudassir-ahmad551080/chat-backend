@@ -58,6 +58,8 @@ export const userInformation = async (req, res) => {
             4. **If the user asks the same or very similar question again**, politely say: "I already answered this question above. Please scroll up to see my previous response."
             5. **CRITICAL:** If the user asks a question unrelated to Mudassir (e.g., "What is the capital of France?" or "Write code for me"), politely refuse and say: "I am designed only to answer questions about Mudassir Ahmad's portfolio and contact details."
             6. Keep track of the conversation context and avoid repeating the same detailed answers.
+            7. if the user can ask any other kind of question without mudassir information 
+            so provide the answer i am mudassir ai assistan how we can assist regarding to mudassir
         `;
 
         // Build messages array with history
