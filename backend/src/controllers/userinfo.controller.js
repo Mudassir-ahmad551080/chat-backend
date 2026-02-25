@@ -9,19 +9,28 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
+// Store conversation history per session (in-memory for demo)
+// In production, use Redis, MongoDB, or session storage
+const conversationHistory = new Map();
+
 export const userInformation = async (req, res) => {
     try {
-        const { text } = req.body;
+        const { text, sessionId } = req.body; // Add sessionId to track conversations
 
         if (!text) {
             return res.status(400).json({ message: "Please provide a question or text." });
         }
 
-        // 1. Define Mudassir's Context
-        // This tells the AI who it is representing and provides the raw data.
+        // Get or initialize conversation history for this session
+        if (!conversationHistory.has(sessionId)) {
+            conversationHistory.set(sessionId, []);
+        }
+        const history = conversationHistory.get(sessionId);
+
+        // System prompt (only sent once at the start)
         const systemPrompt = `
             You are an AI assistant designed exclusively to provide information about a developer named Mudassir Ahmad.
-            
+           
             Here is the ONLY information you have about him:
             - **Name:** Mudassir Ahmad
             - **Study in:** Islamia College University Peshawar
@@ -29,49 +38,60 @@ export const userInformation = async (req, res) => {
             - **Location:** Dalazak Road, Peshawar
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
-            Whenever you mention linkdin or gitub , you MUST use Markdown link syntax. 
-            Here are his projects:
-            // - **linkdin-account:** [click to view linkdin](https://www.linkedin.com/in/mudassir-developer123/)
-            // - **Github:**  [click to view linkdin](https://github.com/Mudassir-ahmad551080)
-
-            if the user can ask about the skill
-            so provide the html,css,javascript,react.js,node.js,express,mongodb,
-            postgress,typescript,Next.js,and Gen Ai 
             
-           **PROJECTS (FORMAT AS LINKS):**
-            Whenever you mention projects, you MUST use Markdown link syntax. 
-            Here are his projects:
+            **Social Links:**
+            - **LinkedIn:** [click to view LinkedIn](https://www.linkedin.com/in/mudassir-developer123/)
+            - **Github:** [click to view Github](https://github.com/Mudassir-ahmad551080)
+
+            **Skills:**
+            HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI
+           
+            **PROJECTS (FORMAT AS LINKS):**
             - **E-Commerce Platform**: [Click to View Project](https://e-commerce-frontend-gray-ten.vercel.app/)
             - **Real Estate App**: [Click to View Project](https://dummy-link-2.com)
             - **Task Management System**: [Click to View Project](https://dummy-link-3.com)
-            **Instructions for you:**
+            
+            **Instructions:**
             1. If the user asks for contact info, provide the phone or email.
-            2. If the user asks about his skills, mention he is a MERN stack developer.
-            3. If the user asks for his portfolio/projects, provide the dummy links above.
-            4. **CRITICAL:** If the user asks a question unrelated to Mudassir (e.g., "What is the capital of France?" or "Write code for me"), politely refuse and say: "I am designed only to answer questions about Mudassir Ahmad's portfolio and contact details.
-            5.if the user can ask any other question or say what is react or node js or anyother kind of question so dont answer,
-            "
+            2. If the user asks about his skills, mention the skills listed above.
+            3. If the user asks for his portfolio/projects, provide the links above.
+            4. **If the user asks the same or very similar question again**, politely say: "I already answered this question above. Please scroll up to see my previous response."
+            5. **CRITICAL:** If the user asks a question unrelated to Mudassir (e.g., "What is the capital of France?" or "Write code for me"), politely refuse and say: "I am designed only to answer questions about Mudassir Ahmad's portfolio and contact details."
+            6. Keep track of the conversation context and avoid repeating the same detailed answers.
         `;
 
-        // 2. Call the Groq API
+        // Build messages array with history
+        const messages = [
+            {
+                role: "system",
+                content: systemPrompt,
+            },
+            ...history, // Add previous conversation
+            {
+                role: "user",
+                content: text,
+            },
+        ];
+
+        // Call the Groq API
         const chatCompletion = await groq.chat.completions.create({
-            messages: [
-                {
-                    role: "system",
-                    content: systemPrompt,
-                },
-                {
-                    role: "user",
-                    content: text,
-                },
-            ],
-            // You can use 'llama3-8b-8192' or 'mixtral-8x7b-32768' for fast responses
-            model: process.env.GROQ_MODEL, 
-            temperature: 0.6, // Keeps the answers factual but natural
+            messages: messages,
+            model: process.env.GROQ_MODEL || "llama3-8b-8192",
+            temperature: 0.6,
         });
 
-        // 3. Send the response back to the frontend
         const aiResponse = chatCompletion.choices[0]?.message?.content || "Sorry, I couldn't retrieve the information.";
+
+        // Update conversation history
+        history.push(
+            { role: "user", content: text },
+            { role: "assistant", content: aiResponse }
+        );
+
+        // Optional: Limit history to last 20 messages to avoid token limits
+        if (history.length > 20) {
+            history.splice(0, history.length - 20);
+        }
 
         return res.status(200).json({
             success: true,
