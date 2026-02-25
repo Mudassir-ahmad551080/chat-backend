@@ -9,13 +9,12 @@ const groq = new Groq({
     apiKey: process.env.GROQ_API_KEY
 });
 
-// Store conversation history per session (in-memory for demo)
-// In production, use Redis, MongoDB, or session storage
+// Store conversation history per session
 const conversationHistory = new Map();
 
 export const userInformation = async (req, res) => {
     try {
-        const { text, sessionId } = req.body; // Add sessionId to track conversations
+        const { text, sessionId } = req.body;
 
         if (!text) {
             return res.status(400).json({ message: "Please provide a question or text." });
@@ -27,48 +26,56 @@ export const userInformation = async (req, res) => {
         }
         const history = conversationHistory.get(sessionId);
 
-        // System prompt (only sent once at the start)
+        // --- IMPROVED SYSTEM PROMPT ---
         const systemPrompt = `
-            You are an AI assistant designed exclusively to provide information about a developer named Mudassir Ahmad.
-           
-            Here is the ONLY information you have about him:
+            You are a professional AI Portfolio Assistant for **Mudassir Ahmad**. 
+            Your goal is to answer questions about Mudassir professionally, concisely, and accurately based *strictly* on the context provided below.
+
+            --- 
+            **MUDASSIR'S DATA:**
             - **Name:** Mudassir Ahmad
-            - **Study in:** Islamia College University Peshawar
+            - **Education:** Islamia College University Peshawar
             - **Role:** MERN Stack Developer
             - **Location:** Dalazak Road, Peshawar
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
             
             **Social Links:**
-            - **LinkedIn:** [click to view LinkedIn](https://www.linkedin.com/in/mudassir-developer123/)
-            - **Github:** [click to view Github](https://github.com/Mudassir-ahmad551080)
+            - **LinkedIn:** https://www.linkedin.com/in/mudassir-developer123/
+            - **Github:** https://github.com/Mudassir-ahmad551080
 
             **Skills:**
-            HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI
-           
-            **PROJECTS (FORMAT AS LINKS):**
-            - **E-Commerce Platform**: [Click to View Project](https://e-commerce-frontend-gray-ten.vercel.app/)
-            - **Real Estate App**: [Click to View Project](https://dummy-link-2.com)
-            - **Task Management System**: [Click to View Project](https://dummy-link-3.com)
-            
-            **Instructions:**
-            1. If the user asks for contact info, provide the phone or email.
-            2. If the user asks about his skills, mention the skills listed above.
-            3. If the user asks for his portfolio/projects, provide the links above.
-            4. **If the user asks the same or very similar question again**, politely say: "I already answered this question above. Please scroll up to see my previous response."
-            5. **CRITICAL:** If the user asks a question unrelated to Mudassir (e.g., "What is the capital of France?" or "Write code for me"), politely refuse and say: "I am designed only to answer questions about Mudassir Ahmad's portfolio and contact details."
-            6. Keep track of the conversation context and avoid repeating the same detailed answers.
-            7. if the user can ask any other kind of question without mudassir information 
-            so provide the answer i am mudassir ai assistan how we can assist regarding to mudassir
+            HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI.
+
+            **Projects:**
+            1. **E-Commerce Platform**: https://e-commerce-frontend-gray-ten.vercel.app/
+            2. **Real Estate App**: https://dummy-link-2.com
+            3. **Task Management System**: https://dummy-link-3.com
+
+            ---
+            **STRICT RESPONSE GUIDELINES:**
+
+            1.  **PRECISION IS KEY:** - If the user asks for **LinkedIn**, provide *only* the LinkedIn link. Do NOT list his email, phone, or GitHub unless asked.
+                - If the user asks for **Skills**, list *only* the skills.
+                - If the user asks for **Projects**, list the projects with links.
+                - **Do not** provide a full summary unless the user asks "Tell me about Mudassir" or "Give me an overview."
+
+            2.  **OUT OF SCOPE (CRITICAL):** - If the user asks about anything *unrelated* to Mudassir (e.g., "Write code for a login page", "What is the capital of Pakistan?", "How do I cook pasta?"), you **MUST** refuse.
+                - **Refusal Message:** "I am Mudassir's AI assistant. I can only answer questions regarding his portfolio, skills, and contact information."
+
+            3.  **TONE:** - Be professional, polite, and brief. 
+
+            4.  **REPETITION:**
+                - If the user asks the exact same question you just answered, politely refer them to the previous answer.
         `;
 
-        // Build messages array with history
+        // Build messages array
         const messages = [
             {
                 role: "system",
                 content: systemPrompt,
             },
-            ...history, // Add previous conversation
+            ...history, 
             {
                 role: "user",
                 content: text,
@@ -78,11 +85,18 @@ export const userInformation = async (req, res) => {
         // Call the Groq API
         const chatCompletion = await groq.chat.completions.create({
             messages: messages,
-            model: process.env.GROQ_MODEL || "llama3-8b-8192",
-            temperature: 0.6,
+            // Suggesting using the 70b model for better instruction following if available, 
+            // otherwise 8b is fine but strictly controlled by the prompt.
+            model: process.env.GROQ_MODEL || "llama3-70b-8192", 
+            
+            // CRITICAL CHANGE: Lower temperature for precision
+            temperature: 0.2, 
+            
+            // Limit tokens to prevent long essays
+            max_tokens: 200, 
         });
 
-        const aiResponse = chatCompletion.choices[0]?.message?.content || "Sorry, I couldn't retrieve the information.";
+        const aiResponse = chatCompletion.choices[0]?.message?.content || "Sorry, I currently cannot retrieve that information.";
 
         // Update conversation history
         history.push(
@@ -90,7 +104,7 @@ export const userInformation = async (req, res) => {
             { role: "assistant", content: aiResponse }
         );
 
-        // Optional: Limit history to last 20 messages to avoid token limits
+        // Keep history size manageable
         if (history.length > 20) {
             history.splice(0, history.length - 20);
         }
