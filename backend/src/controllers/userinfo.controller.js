@@ -41,16 +41,16 @@ export const userInformation = async (req, res) => {
             - **Email:** ma6386731@gmail.com
             
             **Social Links:**
-            - **LinkedIn:** https://www.linkedin.com/in/mudassir-developer123/
-            - **Github:** https://github.com/Mudassir-ahmad551080
+            - **LinkedIn:** [click To view](https://www.linkedin.com/in/mudassir-developer123/)
+            - **Github:** [click To view](https://github.com/Mudassir-ahmad551080)
 
             **Skills:**
             HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI.
 
             **Projects:**
-            1. **E-Commerce Platform**: https://e-commerce-frontend-gray-ten.vercel.app/
-            2. **Real Estate App**: https://dummy-link-2.com
-            3. **Task Management System**: https://dummy-link-3.com
+            1. **E-Commerce Platform**:[click To view](https://e-commerce-frontend-gray-ten.vercel.app/)
+            2. **Real Estate App**: [click To view](https://dummy-link-2.com)
+            3. **Task Management System**: [click To view](https://dummy-link-3.com)
 
             ---
             **STRICT RESPONSE GUIDELINES:**
