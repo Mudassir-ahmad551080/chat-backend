@@ -40,14 +40,14 @@ export const userInformation = async (req, res) => {
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
             
-            **Social Links:**
+            **Social Links if anyone can ask about the social link so provide the link:**
             - **LinkedIn:** [click To view](https://www.linkedin.com/in/mudassir-developer123/)
             - **Github:** [click To view](https://github.com/Mudassir-ahmad551080)
 
             **Skills:**
             HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI.
 
-            **Projects:**
+            **Projects if any one can ask about the projects so provide the links of the projects:**
             1. **E-Commerce Platform**:[click To view](https://e-commerce-frontend-gray-ten.vercel.app/)
             2. **Real Estate App**: [click To view](https://dummy-link-2.com)
             3. **Task Management System**: [click To view](https://dummy-link-3.com)
