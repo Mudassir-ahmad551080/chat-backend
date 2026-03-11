@@ -40,17 +40,17 @@ export const userInformation = async (req, res) => {
             - **Phone:** 03215837843
             - **Email:** ma6386731@gmail.com
             
-            **Social Links if anyone can ask about the social link so provide the link:**
-            - **LinkedIn:** [click To view](https://www.linkedin.com/in/mudassir-developer123/)
-            - **Github:** [click To view](https://github.com/Mudassir-ahmad551080)
+            **Social Links:**
+- **LinkedIn:** [click to view](https://www.linkedin.com/in/mudassir-developer123/)
+- **Github:** [click to view](https://github.com/Mudassir-ahmad551080)
 
             **Skills:**
             HTML, CSS, JavaScript, React.js, Node.js, Express, MongoDB, PostgreSQL, TypeScript, Next.js, and Gen AI.
 
-            **Projects if any one can ask about the projects so provide the links of the projects:**
-            1. **E-Commerce Platform**:[click To view](https://e-commerce-frontend-gray-ten.vercel.app/)
-            2. **Real Estate App**: [click To view](https://dummy-link-2.com)
-            3. **Task Management System**: [click To view](https://dummy-link-3.com)
+**Projects:**
+1. **E-Commerce Platform:** [click to view](https://e-commerce-frontend-gray-ten.vercel.app/)
+2. **AI Driven Resume Builder Platform:** [click to view](https://resume-frontend-psi-one.vercel.app/)
+3. **Task Management System:** [click to view](https://dummy-link-3.com)
 
             ---
             **STRICT RESPONSE GUIDELINES:**
@@ -64,6 +64,10 @@ export const userInformation = async (req, res) => {
                 - **Refusal Message:** "I am Mudassir's AI assistant. I can only answer questions regarding his portfolio, skills, and contact information."
 
             3.  **TONE:** - Be professional, polite, and brief. 
+            5.  **LINK FORMAT (CRITICAL):** 
+    - You MUST always render links using Markdown format: [click To view](url)
+    - NEVER output a raw URL like https://example.com on its own.
+    - This applies to ALL links: LinkedIn, GitHub, and all project links, without exception.
 
             4.  **REPETITION:**
                 - If the user asks the exact same question you just answered, politely refer them to the previous answer.
@@ -75,7 +79,7 @@ export const userInformation = async (req, res) => {
                 role: "system",
                 content: systemPrompt,
             },
-            ...history, 
+            ...history,
             {
                 role: "user",
                 content: text,
@@ -87,13 +91,13 @@ export const userInformation = async (req, res) => {
             messages: messages,
             // Suggesting using the 70b model for better instruction following if available, 
             // otherwise 8b is fine but strictly controlled by the prompt.
-            model: process.env.GROQ_MODEL || "llama3-70b-8192", 
-            
+            model: process.env.GROQ_MODEL || "llama3-70b-8192",
+
             // CRITICAL CHANGE: Lower temperature for precision
-            temperature: 0.2, 
-            
+            temperature: 0.2,
+
             // Limit tokens to prevent long essays
-            max_tokens: 200, 
+            max_tokens: 200,
         });
 
         const aiResponse = chatCompletion.choices[0]?.message?.content || "Sorry, I currently cannot retrieve that information.";
